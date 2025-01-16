@@ -8,6 +8,20 @@ on:
 
 jobs:
   ci:
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: url_shortener
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
@@ -37,6 +51,8 @@ jobs:
         run: golangci-lint run ./...
 
       - name: Test with coverage
+        env:
+          DATABASE_URL: host=localhost user=postgres password=postgres dbname=url_shortener port=5432 sslmode=disable
         run: go test -v -coverprofile=coverage.out ./...
 
       - name: Build
