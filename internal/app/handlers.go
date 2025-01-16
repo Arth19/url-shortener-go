@@ -80,16 +80,21 @@ func EncurtarURLHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func RedirecionarHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	shortCode := vars["shortCode"]
-
-	urlData, err := storage.GetURL(shortCode)
+	shortCode := mux.Vars(r)["shortCode"]
+	originalURL, err := storage.GetURL(shortCode)
 	if err != nil {
+		log.Println("Erro ao obter URL original:", err)
 		http.NotFound(w, r)
 		return
 	}
 
-	storage.IncrementClickCount(shortCode)
+	err = storage.IncrementClickCount(shortCode)
+	if err != nil {
+		log.Println("Erro ao incrementar contagem de cliques:", err)
+		http.Error(w, "Erro interno", http.StatusInternalServerError)
+		return
+	}
 
-	http.Redirect(w, r, urlData.Original, http.StatusFound)
+	log.Printf("Redirecionando para %s", originalURL.Original)
+	http.Redirect(w, r, originalURL.Original, http.StatusFound)
 }
