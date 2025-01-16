@@ -45,7 +45,12 @@ func StatsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		log.Println("Erro ao codificar JSON:", err)
+		http.Error(w, "Erro interno", http.StatusInternalServerError)
+		return
+	}
 }
 
 func EncurtarURLHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +81,12 @@ func EncurtarURLHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp := ResponseBody{ShortCode: shortCode}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		log.Println("Erro ao codificar JSON:", err)
+		http.Error(w, "Erro interno", http.StatusInternalServerError)
+		return
+	}
 }
 
 func RedirecionarHandler(w http.ResponseWriter, r *http.Request) {
