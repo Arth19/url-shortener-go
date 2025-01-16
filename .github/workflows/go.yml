@@ -8,8 +8,15 @@ on:
 
 jobs:
   ci:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        go-version: [ '1.22' ]
+    runs-on: ${{ matrix.os }}
+
     services:
       postgres:
+        if: runner.os == 'Linux'
         image: postgres:15
         env:
           POSTGRES_USER: postgres
@@ -22,11 +29,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-        go-version: [ '1.22' ]
-    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
